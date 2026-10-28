@@ -1,0 +1,193 @@
+(function () {
+  var D = window.DATA;
+
+  // 提醒卡片：只描述问题、原因与建议；不发起任何外部动作，HR 自行在 ATS 内处理
+  // status: active 待关注 / deferred 已暂缓 / ack 已知悉
+  D.CARDS_SEED = [
+    {
+      id: "CARD-IF-001",
+      type: "interview_feedback", typeLabel: "招聘流程卡点", ruleId: "RULE-IF-24H",
+      title: "面试反馈等待超时",
+      jobId: "JOB-PM-001", candidateId: "C-PM-001",
+      stage: "二面已完成",
+      sinceAt: "2026-10-20T12:00:00+08:00", sinceLabel: "二面结束时间",
+      thresholdHours: 24, thresholdLabel: "面试结束后 24 小时未记录反馈",
+      ruleText: "面试结束超过 24 小时且 ATS 中无面试反馈记录 → 提醒 HR 跟进",
+      basis: "二面已于 2026-10-20 12:00 结束，已等待 52 小时；ATS 面试反馈字段为空，未发现评估结论或评分。",
+      impact: "候选人无法进入下一流程；岗位仍有 1 个 HC 待确认。",
+      suggestions: ["先确认面试官是否已完成评估", "若已完成，请在 ATS 补充面试结论与评分", "若未开始，今天内与面试官约定补充时间"],
+      status: "active", priority: 96
+    },
+    {
+      id: "CARD-IF-002",
+      type: "interview_feedback", typeLabel: "招聘流程卡点", ruleId: "RULE-IF-24H",
+      title: "面试反馈等待超时",
+      jobId: "JOB-PM-001", candidateId: "C-PM-004",
+      stage: "一面已完成",
+      sinceAt: "2026-10-21T15:30:00+08:00", sinceLabel: "一面结束时间",
+      thresholdHours: 24, thresholdLabel: "面试结束后 24 小时未记录反馈",
+      ruleText: "面试结束超过 24 小时且 ATS 中无面试反馈记录 → 提醒 HR 跟进",
+      basis: "一面已于 2026-10-21 15:30 结束，已等待 40 小时；ATS 面试反馈字段为空。",
+      impact: "候选人停留在「一面已完成」，无法判断是否进入二面。",
+      suggestions: ["确认面试官是否已完成评估", "若已完成，请在 ATS 补充面试结论与评分"],
+      status: "active", priority: 92
+    },
+    {
+      id: "CARD-BF-001",
+      type: "biz_feedback", typeLabel: "招聘流程卡点", ruleId: "RULE-BF-48H",
+      title: "业务部门反馈超时",
+      jobId: "JOB-PM-001", candidateId: "C-PM-002",
+      stage: "已推荐业务部门",
+      sinceAt: "2026-10-20T09:30:00+08:00", sinceLabel: "推荐给业务部门时间",
+      thresholdHours: 48, thresholdLabel: "推荐给业务部门后 48 小时未反馈",
+      ruleText: "简历推荐给业务部门超过 48 小时且无反馈记录 → 提醒 HR 跟进",
+      basis: "简历于 2026-10-20 09:30 推荐给业务部门，已等待 55 小时；ATS 业务反馈状态为空。",
+      impact: "候选人停留在「已推荐」阶段，无法安排面试；该候选人为高匹配。",
+      suggestions: ["确认业务负责人是否已查看简历", "约定回复时间点并记录在 ATS"],
+      status: "active", priority: 88
+    },
+    {
+      id: "CARD-IA-001",
+      type: "interview_arrange", typeLabel: "面试日程", ruleId: "RULE-IA-72H",
+      title: "初筛通过未安排面试",
+      jobId: "JOB-PM-001", candidateId: "C-PM-006",
+      stage: "初筛通过，待安排面试",
+      sinceAt: "2026-10-18T14:00:00+08:00", sinceLabel: "初筛通过时间",
+      thresholdHours: 72, thresholdLabel: "初筛通过后 72 小时内未创建面试",
+      ruleText: "初筛通过超过 72 小时且 interview_at 为空 → 提醒 HR 安排面试",
+      basis: "该候选人于 2026-10-18 14:00 初筛通过，已等待 98 小时，ATS 中无面试安排记录。",
+      impact: "等待越久候选人流失概率越高；面试官资源未占用。",
+      suggestions: ["确认面试官档期并发起邀约", "若候选人暂不方便，记录预计可面试时间"],
+      status: "active", priority: 82
+    },
+    {
+      id: "CARD-OF-001",
+      type: "offer_approval", typeLabel: "招聘流程卡点", ruleId: "RULE-OF-48H",
+      title: "Offer 审批超时",
+      jobId: "JOB-PM-001", candidateId: "C-PM-007",
+      stage: "Offer 审批中",
+      sinceAt: "2026-10-20T15:00:00+08:00", sinceLabel: "Offer 提交审批时间",
+      thresholdHours: 48, thresholdLabel: "Offer 提交审批后 48 小时未出结论",
+      ruleText: "Offer 提交审批超过 48 小时且状态仍为 pending → 提醒 HR 跟进审批",
+      basis: "Offer 于 2026-10-20 15:00 提交审批，已等待 49 小时，审批链仍有 1 个节点未处理。",
+      impact: "候选人已在等待期，审批拖延会直接影响入职时间。",
+      suggestions: ["确认审批链当前停留节点", "与审批人确认预计完成时间"],
+      status: "active", priority: 80
+    },
+    {
+      id: "CARD-SC-001",
+      type: "screening_anomaly", typeLabel: "初筛异常", ruleId: "RULE-SC-LOWPASS",
+      title: "本批次初筛通过率偏低",
+      jobId: "JOB-PM-001", candidateId: null,
+      stage: "简历初筛批次 B-PM-01",
+      sinceAt: "2026-10-21T09:34:00+08:00", sinceLabel: "批次完成时间",
+      thresholdHours: null, thresholdLabel: "样本量 ≥ 30 且高匹配比例 < 15%",
+      ruleText: "单批次已处理简历 ≥ 30 份且高匹配比例 < 15% → 生成初筛异常提醒",
+      basis: "批次 B-PM-01 累计处理 37 份可解析简历（另有 3 份解析失败），高匹配仅 3 份，占比约 8%，低于 15% 阈值。",
+      impact: "若标准过严可能漏掉可用候选人；若标准合理则说明简历来源与岗位不匹配。",
+      suggestions: ["抽查 5 份「中匹配」简历，确认是否因表述差异被降级", "核查硬性条件是否有可放宽项"],
+      statsPeriod: "2026-10-16 至 2026-10-22", statsProcessed: 37, statsHigh: 3, statsRatio: 3 / 37,
+      status: "active", priority: 74
+    },
+    {
+      id: "CARD-ST-001",
+      type: "stage_stale", typeLabel: "招聘流程卡点", ruleId: "RULE-ST-7D",
+      title: "候选人阶段停留过久",
+      jobId: "JOB-PM-001", candidateId: "C-PM-008",
+      stage: "已推荐业务部门",
+      sinceAt: "2026-10-14T10:00:00+08:00", sinceLabel: "进入当前阶段时间",
+      thresholdHours: 168, thresholdLabel: "同一阶段停留超过 7 天",
+      ruleText: "current_stage 与 stage_updated_at 超过 7 天无变化 → 提醒 HR 推进或归档",
+      basis: "该候选人自 2026-10-14 10:00 停留在「已推荐业务部门」，已 8 天无推进动作。",
+      impact: "长期挂起会占用在招名额统计，且候选人体验受损。",
+      suggestions: ["确认是否继续推进，或标记为暂不推进", "若继续推进，补足业务侧反馈"],
+      status: "active", priority: 70
+    },
+    {
+      id: "CARD-HC-001",
+      type: "position_gap", typeLabel: "岗位进度", ruleId: "RULE-HC-30D",
+      title: "岗位开放超期未招满",
+      jobId: "JOB-PM-001", candidateId: null,
+      stage: "在招 · 2 个 HC",
+      sinceAt: "2026-09-20T10:00:00+08:00", sinceLabel: "岗位开放时间",
+      thresholdHours: 720, thresholdLabel: "开放超过 30 天且 HC 未满足",
+      ruleText: "job_opened_at 距今 > 30 天且已入职人数 < headcount → 提醒 HR 复盘",
+      basis: "岗位于 2026-09-20 开放，已 32 天；HC 2 个，当前仅 1 人进入 Offer 审批阶段。",
+      impact: "业务方用人时间点临近，缺口未闭合。",
+      suggestions: ["与业务方确认是否调整渠道或放宽标准", "核对在流程中的候选人数量是否足够"],
+      status: "active", priority: 66
+    },
+    {
+      id: "CARD-IV-001",
+      type: "interview_today", typeLabel: "面试日程", ruleId: "RULE-IV-2H",
+      title: "今日面试待确认安排",
+      jobId: "JOB-PM-001", candidateId: "C-PM-009",
+      stage: "一面待进行",
+      sinceAt: "2026-10-22T18:00:00+08:00", sinceLabel: "面试开始时间",
+      waitOverride: "距开始约 1.5 小时",
+      thresholdHours: 2, thresholdLabel: "距面试开始不足 2 小时",
+      ruleText: "interview_at 距今 < 2 小时且面试官 / 场地未确认 → 提醒 HR 确认",
+      basis: "面试安排在今天 18:00，面试官已确认，但会议链接与场地尚未填写。",
+      impact: "面试开始前未确认场地会影响候选人体验。",
+      suggestions: ["确认会议室或视频会议链接", "提前 10 分钟与候选人确认到场方式"],
+      status: "active", priority: 60
+    },
+    {
+      id: "CARD-DUP-001",
+      type: "duplicate_apply", typeLabel: "协作沟通", ruleId: "RULE-DUP",
+      title: "疑似重复投递",
+      jobId: "JOB-PM-001", candidateId: "C-PM-005",
+      stage: "简历初筛",
+      sinceAt: "2026-10-18T09:00:00+08:00", sinceLabel: "另一岗位投递时间",
+      thresholdHours: null, thresholdLabel: "同人 30 天内投递 ≥ 2 个岗位",
+      ruleText: "同一候选人手机号哈希在 30 天内出现在 2 个及以上岗位 → 提醒 HR 复用结论",
+      basis: "该候选人于 2026-10-18 投递「数据分析师（增长方向）」，手机号后四位 6612 与本岗位一致，结论为「中匹配」。",
+      impact: "重复筛选会消耗时间；两个岗位的推进状态需要避免冲突。",
+      suggestions: ["查看另一岗位的初筛结论，判断可否复用", "如需转岗推进，与对应 HR 同步"],
+      status: "active", priority: 55
+    },
+    {
+      id: "CARD-IF-000",
+      type: "interview_feedback", typeLabel: "招聘流程卡点", ruleId: "RULE-IF-24H",
+      title: "面试反馈等待超时",
+      jobId: "JOB-PM-001", candidateId: "C-PM-011",
+      stage: "一面已完成",
+      sinceAt: "2026-10-19T11:00:00+08:00", sinceLabel: "一面结束时间",
+      thresholdHours: 24, thresholdLabel: "面试结束后 24 小时未记录反馈",
+      ruleText: "面试结束超过 24 小时且 ATS 中无面试反馈记录 → 提醒 HR 跟进",
+      basis: "该候选人一面于 2026-10-19 11:00 结束，已等待超过 24 小时且未发现反馈记录。",
+      impact: "候选人无法进入下一流程。",
+      suggestions: ["确认面试官是否完成评估", "若已完成，请在 ATS 中补充结论"],
+      status: "ack", ackAt: "2026-10-21T15:20:00+08:00", ackBy: "李萌",
+      ackNote: "已联系一面面试官，评估结论已于 10-21 下午补录入 ATS。",
+      priority: 40
+    },
+    {
+      id: "CARD-BF-000",
+      type: "biz_feedback", typeLabel: "招聘流程卡点", ruleId: "RULE-BF-48H",
+      title: "业务部门反馈超时",
+      jobId: "JOB-PM-001", candidateId: "C-PM-003",
+      stage: "已推荐业务部门",
+      sinceAt: "2026-10-20T10:00:00+08:00", sinceLabel: "推荐给业务部门时间",
+      thresholdHours: 48, thresholdLabel: "推荐给业务部门后 48 小时未反馈",
+      ruleText: "简历推荐给业务部门超过 48 小时且无反馈记录 → 提醒 HR 跟进",
+      basis: "该候选人于 2026-10-20 10:00 推荐给业务部门，已等待 54 小时仍无反馈记录。",
+      impact: "候选人停留在「已推荐」阶段，无法安排面试。",
+      suggestions: ["确认业务侧是否已查看简历", "约定回复时间点并记录在 ATS"],
+      status: "deferred", deferUntil: "2026-10-24T10:00:00+08:00", deferredAt: "2026-10-22T09:10:00+08:00", deferDays: 2,
+      priority: 30
+    }
+  ];
+
+  D.CARD_TYPE_LABEL = {
+    interview_feedback: "面试反馈超时",
+    biz_feedback: "业务反馈超时",
+    interview_arrange: "面试安排滞后",
+    interview_today: "今日面试",
+    offer_approval: "Offer 审批超时",
+    stage_stale: "阶段停留过久",
+    screening_anomaly: "初筛异常",
+    position_gap: "岗位缺口",
+    duplicate_apply: "重复投递"
+  };
+})();

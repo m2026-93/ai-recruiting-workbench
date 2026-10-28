@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>AI 招聘工作台 · AI 简历初筛与提醒助手</title>
+<link rel="stylesheet" href="css/base.css" />
+<link rel="stylesheet" href="css/auth.css" />
+<link rel="stylesheet" href="css/views.css" />
+<link rel="stylesheet" href="css/people-picker.css" />
+<link rel="stylesheet" href="css/agent.css" />
+<link rel="stylesheet" href="css/resume.css" />
+</head>
+<body data-auth="pending">
+<div id="authRoot"></div>
+<div class="app" id="appShell" style="display:none">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">网</div>
+      <div class="brand-text">
+        <strong>AI 招聘工作台</strong>
+        <span>NetEase Recruiting</span>
+      </div>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item nav-group" data-route="dashboard">
+        <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="2" width="5" height="5" rx="1"/><rect x="9" y="2" width="5" height="5" rx="1"/><rect x="2" y="9" width="5" height="5" rx="1"/><rect x="9" y="9" width="5" height="5" rx="1"/></svg>
+        <span>招聘工作台</span>
+        <i class="nav-caret" data-nav-toggle="1" title="展开 / 收起子菜单"></i>
+      </button>
+      <div class="nav-sub" data-sub="workbench">
+        <button class="nav-item sub" data-route="screening">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2 3.5h12M2 8h12M2 12.5h7"/></svg>
+          <span>AI 简历初筛</span>
+          <em class="nav-badge" id="navBadgeScreen">0</em>
+        </button>
+        <button class="nav-item sub" data-route="cards">
+          <svg viewBox="0 0 16 16" aria-hidden="true"><rect x="2" y="3" width="12" height="4" rx="1"/><rect x="2" y="9" width="12" height="4" rx="1"/></svg>
+          <span>AI 提醒助手</span>
+          <em class="nav-badge" id="navBadgeCard">0</em>
+        </button>
+      </div>
+    </nav>
+
+    <div class="side-block">
+      <div class="side-title">当前岗位</div>
+      <div id="sideJob" class="side-job"></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="topbar">
+      <div class="topbar-left">
+        <h1 id="pageTitle">招聘工作台</h1>
+        <p class="page-sub" id="pageSub"></p>
+      </div>
+      <div class="topbar-right">
+        <label class="job-picker">
+          <span>岗位</span>
+          <select id="jobSelect"></select>
+        </label>
+        <div class="task-chip" id="taskChip"></div>
+        <div class="user-box" id="userBox"></div>
+      </div>
+    </header>
+
+    <main class="view" id="view"></main>
+  </div>
+</div>
+
+<div id="drawerRoot"></div>
+<div id="modalRoot"></div>
+<div id="toastRoot" class="toast-root"></div>
+
+<script src="js/data-jobs.js"></script>
+<script src="js/data-employees.js"></script>
+<script src="js/data-accounts.js"></script>
+<script src="js/data-candidates.js"></script>
+<script src="js/data-generator.js"></script>
+<script src="js/data-cards.js"></script>
+<script src="js/data-rules.js"></script>
+<script src="js/data-jdextract.js"></script>
+<script src="js/store.js"></script>
+<script src="js/people-picker.js"></script>
+<script src="js/ai-agent.js"></script>
+<script src="js/auth.js"></script>
+<script src="js/view-auth.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/resume.js"></script>
+<script src="js/view-admin.js"></script>
+<script src="js/view-dashboard.js"></script>
+<script src="js/view-screening.js"></script>
+<script src="js/view-cards.js"></script>
+<script src="js/drawer-candidate.js"></script>
+<script src="js/drawer-card.js"></script>
+<script src="js/main.js"></script>
+</body>
+</html>
